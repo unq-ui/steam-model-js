@@ -1,10 +1,27 @@
-import { PageException } from '../model/Exceptions.js';
-import { PageInfo } from '../model/PageInfo.js';
-import { User } from './User.js';
-import { Review } from './Review.js';
-import { IdGenerator } from './IdGenerator.js';
-import { NotFoundTag, NotFoundUser, NotFoundGame, NotFoundDeveloper, ReviewException, PurchaseException, UserException } from './Exceptions.js';
-import { getPage } from '../utils/pagination.js';
+import { CardInfo, DraftPurchase, DraftReview } from "../model/Drafts.js";
+import { PageException } from "../model/Exceptions.js";
+import { PageInfo } from "../model/PageInfo.js";
+import { getPage } from "../utils/pagination.js";
+import {
+  allDevelopers,
+  allReviewText,
+  allTags,
+  allUsers,
+  getAllGamesData,
+} from "./data.js";
+import {
+  NotFoundDeveloper,
+  NotFoundGame,
+  NotFoundTag,
+  NotFoundUser,
+  PurchaseException,
+  ReviewException,
+  UserException,
+} from "./Exceptions.js";
+import { getRandomBoolean, getRandomList } from "./helpers.js";
+import { IdGenerator } from "./IdGenerator.js";
+import { Review } from "./Review.js";
+import { User } from "./User.js";
 
 /**
  * Get a paginated list of elements.
@@ -16,13 +33,13 @@ import { getPage } from '../utils/pagination.js';
  */
 function getPage(list, page) {
   if (page < 1) throw new PageException("Page must be 1 or more");
-  
+
   // Chunk the list into groups of 10
   const chunkedList = [];
   for (let i = 0; i < list.length; i += 10) {
     chunkedList.push(list.slice(i, i + 10));
   }
-  
+
   return new PageInfo(
     page,
     chunkedList[page - 1] || [],
@@ -30,12 +47,6 @@ function getPage(list, page) {
     chunkedList.length
   );
 }
-
-import { User } from './User.js';
-import { Review } from './Review.js';
-import { IdGenerator } from './IdGenerator.js';
-import { NotFoundTag, NotFoundUser, NotFoundGame, NotFoundDeveloper, ReviewException, PurchaseException, UserException } from './Exceptions.js';
-import { getPage } from '../utils/pagination.js';
 
 class SteamSystem {
   /**
@@ -61,9 +72,10 @@ class SteamSystem {
    */
   addNewUser(user) {
     for (const existingUser of this.users) {
-      if (existingUser.email === user.email) throw new UserException("Email is taken");
+      if (existingUser.email === user.email)
+        throw new UserException("Email is taken");
     }
-    
+
     const newUser = new User(
       this.idGenerator.nextUserId(),
       user.email,
@@ -74,7 +86,7 @@ class SteamSystem {
       [],
       []
     );
-    
+
     this.users.push(newUser);
     return newUser;
   }
@@ -87,7 +99,7 @@ class SteamSystem {
    * @throws {NotFoundTag} If the tag with the given ID does not exist.
    */
   getTag(id) {
-    const tag = this.tags.find(t => t.id === id);
+    const tag = this.tags.find((t) => t.id === id);
     if (!tag) throw new NotFoundTag();
     return tag;
   }
@@ -100,7 +112,7 @@ class SteamSystem {
    * @throws {NotFoundUser} If the user with the given ID does not exist.
    */
   getUser(id) {
-    const user = this.users.find(u => u.id === id);
+    const user = this.users.find((u) => u.id === id);
     if (!user) throw new NotFoundUser();
     return user;
   }
@@ -113,7 +125,7 @@ class SteamSystem {
    * @throws {NotFoundGame} If the game with the given ID does not exist.
    */
   getGame(id) {
-    const game = this.games.find(g => g.id === id);
+    const game = this.games.find((g) => g.id === id);
     if (!game) throw new NotFoundGame();
     return game;
   }
@@ -126,7 +138,7 @@ class SteamSystem {
    * @throws {NotFoundDeveloper} If the developer with the given ID does not exist.
    */
   getDeveloper(id) {
-    const developer = this.developers.find(d => d.id === id);
+    const developer = this.developers.find((d) => d.id === id);
     if (!developer) throw new NotFoundDeveloper();
     return developer;
   }
@@ -141,8 +153,8 @@ class SteamSystem {
   getUserReviews(userId) {
     const user = this.getUser(userId);
     return this.games
-      .flatMap(game => game.reviews)
-      .filter(review => review.user === user);
+      .flatMap((game) => game.reviews)
+      .filter((review) => review.user === user);
   }
 
   /**
@@ -155,8 +167,12 @@ class SteamSystem {
   getRecommendedGames() {
     return [...this.games]
       .sort((a, b) => {
-        const aRecommended = a.reviews.filter(review => review.isRecommended).length;
-        const bRecommended = b.reviews.filter(review => review.isRecommended).length;
+        const aRecommended = a.reviews.filter(
+          (review) => review.isRecommended
+        ).length;
+        const bRecommended = b.reviews.filter(
+          (review) => review.isRecommended
+        ).length;
         return bRecommended - aRecommended;
       })
       .slice(0, 10);
@@ -184,7 +200,7 @@ class SteamSystem {
    */
   getGamesByTag(tagId, page = 1) {
     const tag = this.getTag(tagId);
-    const filteredGames = this.games.filter(game => game.tags.includes(tag));
+    const filteredGames = this.games.filter((game) => game.tags.includes(tag));
     return getPage(filteredGames, page);
   }
 
@@ -199,7 +215,9 @@ class SteamSystem {
    */
   getGamesByDeveloper(developerId, page = 1) {
     const developer = this.getDeveloper(developerId);
-    const filteredGames = this.games.filter(game => game.developer === developer);
+    const filteredGames = this.games.filter(
+      (game) => game.developer === developer
+    );
     return getPage(filteredGames, page);
   }
 
@@ -212,7 +230,7 @@ class SteamSystem {
    * @throws {PageException} If the page number is less than 1.
    */
   searchGame(name, page = 1) {
-    const filteredGames = this.games.filter(game => 
+    const filteredGames = this.games.filter((game) =>
       game.name.toLowerCase().includes(name.toLowerCase())
     );
     return getPage(filteredGames, page);
@@ -227,7 +245,7 @@ class SteamSystem {
    * @throws {PageException} If the page number is less than 1.
    */
   searchUser(name, page = 1) {
-    const filteredUsers = this.users.filter(user => 
+    const filteredUsers = this.users.filter((user) =>
       user.name.toLowerCase().includes(name.toLowerCase())
     );
     return getPage(filteredUsers, page);
@@ -246,24 +264,28 @@ class SteamSystem {
   addReview(userId, draftReview) {
     const user = this.getUser(userId);
     const game = this.getGame(draftReview.gameId);
-    
+
     if (!user.games.includes(game)) {
       throw new ReviewException("You need to own the game to leave a review");
     }
-    
-    const existingReview = game.reviews.find(review => review.user === user);
+
+    const existingReview = game.reviews.find((review) => review.user === user);
     if (existingReview) {
-      throw new ReviewException("You've already submitted a review for this game");
+      throw new ReviewException(
+        "You've already submitted a review for this game"
+      );
     }
-    
-    game.reviews.push(new Review(
-      this.idGenerator.nextReviewId(),
-      user,
-      game,
-      draftReview.isRecommended,
-      draftReview.text
-    ));
-    
+
+    game.reviews.push(
+      new Review(
+        this.idGenerator.nextReviewId(),
+        user,
+        game,
+        draftReview.isRecommended,
+        draftReview.text
+      )
+    );
+
     return game;
   }
 
@@ -280,11 +302,11 @@ class SteamSystem {
   purchaseGame(userId, draftPurchase) {
     const user = this.getUser(userId);
     const game = this.getGame(draftPurchase.gameId);
-    
+
     if (user.games.includes(game)) {
       throw new PurchaseException("You already have the game");
     }
-    
+
     user.games.push(game);
     return user;
   }
@@ -302,10 +324,10 @@ class SteamSystem {
     if (userId === friendId) {
       throw new UserException("You cannot self-add.");
     }
-    
+
     const user = this.getUser(userId);
     const friend = this.getUser(friendId);
-    
+
     const index = user.friends.indexOf(friend);
     if (index !== -1) {
       // Remove friend if already exists
@@ -319,9 +341,53 @@ class SteamSystem {
       user.friends.push(friend);
       friend.friends.push(user);
     }
-    
+
     return user;
   }
 }
 
-export { SteamSystem };
+function initSteamSystem() {
+  const random = {
+    random: function () {
+      return Math.random();
+    },
+  };
+
+  const games = getAllGamesData(random).sort((a, b) => {
+    return b.releaseDate.getTime() - a.releaseDate.getTime();
+  });
+
+  const steam = new SteamSystem(games, allDevelopers, allTags, []);
+
+  allUsers.forEach((user) => steam.addNewUser(user));
+
+  steam.users.forEach((user) => {
+    getRandomList(random, steam.games, 40).forEach((game) => {
+      steam.purchaseGame(
+        user.id,
+        new DraftPurchase(game.id, new CardInfo("a", 1234, new Date(), 123))
+      );
+    });
+
+    getRandomList(random, steam.users, 5).forEach((friend) => {
+      if (user.id !== friend.id) {
+        steam.addOrRemoveFriend(user.id, friend.id);
+      }
+    });
+
+    getRandomList(random, user.games, 30).forEach((game) => {
+      steam.addReview(
+        user.id,
+        new DraftReview(
+          game.id,
+          getRandomBoolean(random),
+          getRandomList(random, allReviewText, 1)[0]
+        )
+      );
+    });
+  });
+
+  return steam;
+}
+
+export { initSteamSystem };
