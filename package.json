@@ -1,0 +1,12 @@
+{
+  "name": "@unq-ui/steam-model-js",
+  "version": "1.0.0",
+  "description": "Steam model implementation in JavaScript",
+  "main": "index.js",
+  "keywords": [
+    "steam",
+    "model"
+  ],
+  "author": "Tomas Hurrell <hurrelltomas@gmail.com> (https://github.com/HurrellT)",
+  "license": "ISC"
+}
