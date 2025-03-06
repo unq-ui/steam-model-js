@@ -337,15 +337,12 @@ class SteamSystem {
 
 function initSteamSystem() {
   const random = Math.random();
-  console.log("🚀 ~ initSteamSystem ~ random:", random)
 
   const games = getAllGamesData(random).sort((a, b) => {
     return b.releaseDate.getTime() - a.releaseDate.getTime();
   });
-  console.log("🚀 ~ games ~ games:", games)
 
   const steam = new SteamSystem(games, allDevelopers, allTags, []);
-  console.log("🚀 ~ initSteamSystem ~ steam:", steam)
 
   allUsers.forEach((user) => steam.addNewUser(user));
 
