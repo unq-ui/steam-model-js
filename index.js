@@ -1,7 +1,6 @@
 import { CardInfo, DraftPurchase, DraftReview } from "../model/Drafts.js";
 import { PageException } from "../model/Exceptions.js";
 import { PageInfo } from "../model/PageInfo.js";
-import { getPage } from "../utils/pagination.js";
 import {
   allDevelopers,
   allReviewText,
