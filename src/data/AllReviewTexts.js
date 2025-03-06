@@ -55,3 +55,5 @@ const allReviewText = [
     "That will do.",
     "He has a nice restaurant near the lake.",
 ];
+
+export default allReviewText;

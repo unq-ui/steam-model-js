@@ -1,4 +1,7 @@
-export const allTags = [
+import Tag from "../model/Tag.js";
+import Image from "../model/Image.js";
+
+const allTags = [
     new Tag("t_0", "Singleplayer", new Image("https://media.rawg.io/media/games/942/9424d6bb763dc38d9378b488603c87fa.jpg")),
     new Tag(
         "t_1",
@@ -623,3 +626,5 @@ export const allTags = [
     new Tag("t_293", "Pirates", new Image("https://media.rawg.io/media/games/41a/41a648b954d9a750b2595995b113e684.jpg")),
     new Tag("t_294", "Naval", new Image("https://media.rawg.io/media/games/3a9/3a9ea2db24f879e61fe7b824f5888d2a.jpg")),
 ]
+
+export default allTags;

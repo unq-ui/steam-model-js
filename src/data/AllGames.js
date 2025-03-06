@@ -1,23 +1,25 @@
+import { Game } from "../model/Game.js";
 import { gamesData } from "./AllGamesData.js";
+import { getListOfTags, randomPrice, getDeveloper, getDate, getESRB, getRandomList } from "./helpers.js";
 
 function getAllGamesData(random) {
     const allGamesData = gamesData.map(it => {
-        return {
-            id: it.id,
-            name: it.name,
-            description: it.description,
-            mainImage: { url: it.mainImage },
-            multimedia: it.multimedia.map(image => ({ url: image })),
-            tags: getListOfTags(it.tags),
-            price: randomPrice(random),
-            requirements: it.requirements,
-            relatedGames: [],
-            developer: getDeveloper(it.developer),
-            released: getDate(it.released),
-            reviews: [],
-            esrb: getESRB(it.esrb),
-            website: it.website
-        };
+        return new Game(
+            it.id,
+            it.name,
+            it.description,
+            { url: it.mainImage },
+            it.multimedia.map(image => ({ url: image })),
+            getListOfTags(it.tags),
+            randomPrice(random),
+            it.requirements,
+            [],
+            getDeveloper(it.developer),
+            getDate(it.released),
+            [],
+            getESRB(it.esrb),
+            it.website
+        );
     });
 
     return allGamesData.map(game => {

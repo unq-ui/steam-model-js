@@ -1,26 +1,16 @@
-import { CardInfo, DraftPurchase, DraftReview } from "../model/Drafts.js";
-import { PageException } from "../model/Exceptions.js";
-import { PageInfo } from "../model/PageInfo.js";
-import {
-  allDevelopers,
-  allReviewText,
-  allTags,
-  allUsers,
-  getAllGamesData,
-} from "./data.js";
-import {
-  NotFoundDeveloper,
-  NotFoundGame,
-  NotFoundTag,
-  NotFoundUser,
-  PurchaseException,
-  ReviewException,
-  UserException,
-} from "./Exceptions.js";
-import { getRandomBoolean, getRandomList } from "./helpers.js";
-import { IdGenerator } from "./IdGenerator.js";
-import { Review } from "./Review.js";
-import { User } from "./User.js";
+import getAllGamesData from "./src/data/AllGames.js";
+import allDevelopers from "./src/data/AllDevelopers.js";
+import allTags from "./src/data/AllTags.js";
+import allUsers from "./src/data/AllUsers.js";
+import allReviewText from "./src/data/AllReviewTexts.js";
+
+import { getRandomList, getRandomBoolean } from "./src/data/helpers.js";
+
+import IdGenerator from "./src/model/IdGenerator.js";
+import User from "./src/model/User.js";
+import Review from "./src/model/Review.js";
+import PageInfo from "./src/model/PageInfo.js";
+import { DraftUser, DraftPurchase, CardInfo, DraftReview } from "./src/model/Drafts.js";
 
 /**
  * Get a paginated list of elements.
@@ -346,17 +336,16 @@ class SteamSystem {
 }
 
 function initSteamSystem() {
-  const random = {
-    random: function () {
-      return Math.random();
-    },
-  };
+  const random = Math.random();
+  console.log("🚀 ~ initSteamSystem ~ random:", random)
 
   const games = getAllGamesData(random).sort((a, b) => {
     return b.releaseDate.getTime() - a.releaseDate.getTime();
   });
+  console.log("🚀 ~ games ~ games:", games)
 
   const steam = new SteamSystem(games, allDevelopers, allTags, []);
+  console.log("🚀 ~ initSteamSystem ~ steam:", steam)
 
   allUsers.forEach((user) => steam.addNewUser(user));
 

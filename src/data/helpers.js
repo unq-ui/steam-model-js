@@ -1,4 +1,6 @@
 import { ESRB } from '../model/Game.js';
+import allDevelopers from './AllDevelopers.js';
+import allTags from './AllTags.js';
 
 function getDeveloper(name) {
   const developer = allDevelopers.find(dev => dev.name === name);
@@ -32,7 +34,7 @@ function getESRB(name) {
 }
 
 function getRandom(random, from, to) {
-  return random.random() * (to - from) + from;
+  return random * (to - from) + from;
 }
 
 function randomPrice(random) {
@@ -45,14 +47,14 @@ function getDate(date) {
 
 function getRandomList(random, list, amountOfElements) {
   const indices = new Set();
-  while (indices.size < amountOfElements && indices.size < list.length) {
-    indices.add(Math.floor(random.random() * list.length));
+  for (let i = 0; i < amountOfElements && indices.size < list.length; i++) {
+    indices.add(Math.floor(random * list.length));
   }
   return Array.from(indices).map(i => list[i]);
 }
 
 function getRandomBoolean(random) {
-  return random.random() < 0.5;
+  return random < 0.5;
 }
 
 export {
